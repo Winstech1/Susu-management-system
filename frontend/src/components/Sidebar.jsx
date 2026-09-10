@@ -8,13 +8,16 @@ const links = [
   { to: "/savings", label: "Savings", icon: "💰" },
   { to: "/withdrawals", label: "Withdrawals", icon: "📤" },
   { to: "/groups", label: "Groups", icon: "🧑‍🤝‍🧑" },
-  { to: "/reports", label: "Reports", icon: "📊" },
+  { to: "/reports", label: "Reports", icon: "📊", adminOnly: true },
+  { to: "/users", label: "Manage Users", icon: "🔐", adminOnly: true },
   { to: "/settings", label: "Settings", icon: "⚙️" },
 ];
 
 export default function Sidebar({ open, onClose }) {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const navigate = useNavigate();
+
+  const visibleLinks = links.filter((l) => !l.adminOnly || user?.role === "admin");
 
   return (
     <>
@@ -39,8 +42,8 @@ export default function Sidebar({ open, onClose }) {
           <button onClick={onClose} className="md:hidden text-xl">✕</button>
         </div>
 
-        <nav className="flex-1 py-2 overflow-y-auto">
-          {links.map((l) => (
+               <nav className="flex-1 py-2 overflow-y-auto">
+          {visibleLinks.map((l) => (
             <NavLink
               key={l.to}
               to={l.to}
