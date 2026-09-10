@@ -13,7 +13,6 @@ import Groups from "./pages/Groups";
 import Reports from "./pages/Reports";
 import MemberStatement from "./pages/MemberStatement";
 import Settings from "./pages/Settings";
-import Settings from "./pages/Settings";
 import ManageUsers from "./pages/ManageUsers";
 
 function ProtectedRoute({ children }) {
