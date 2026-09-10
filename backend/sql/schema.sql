@@ -80,3 +80,4 @@ LEFT JOIN (
 LEFT JOIN (
   SELECT member_id, SUM(amount) AS total_withdrawals FROM withdrawals GROUP BY member_id
 ) w ON w.member_id = m.id;
+npm run seed:admin
