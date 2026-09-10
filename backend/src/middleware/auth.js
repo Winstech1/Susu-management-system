@@ -9,11 +9,18 @@ function requireAuth(req, res, next) {
   const token = header.split(" ")[1];
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // { id, username }
+    req.user = decoded; // { id, username, role }
     next();
   } catch (err) {
     return res.status(401).json({ message: "Invalid or expired token" });
   }
 }
 
-module.exports = requireAuth;
+function requireAdmin(req, res, next) {
+  if (req.user?.role !== "admin") {
+    return res.status(403).json({ message: "Admins only" });
+  }
+  next();
+}
+
+module.exports = { requireAuth, requireAdmin };

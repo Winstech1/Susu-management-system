@@ -1,9 +1,11 @@
 const express = require("express");
 const pool = require("../config/db");
-const requireAuth = require("../middleware/auth");
+const { requireAuth, requireAdmin } = require("../middleware/auth");
 
 const router = express.Router();
 router.use(requireAuth);
+router.use(requireAuth);
+router.use(requireAdmin);
 
 // GET /api/settings/backup  (3.12 SETTINGS > Backup)
 // Exports all data as JSON the admin can save/download

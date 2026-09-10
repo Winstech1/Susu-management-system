@@ -1,9 +1,11 @@
 const express = require("express");
 const pool = require("../config/db");
-const requireAuth = require("../middleware/auth");
+const { requireAuth, requireAdmin } = require("../middleware/auth");
 
 const router = express.Router();
 router.use(requireAuth);
+router.use(requireAuth);
+router.use(requireAdmin);
 
 // GET /api/reports/savings?from=&to=  (3.10 REPORTS > Savings Report)
 router.get("/savings", async (req, res) => {

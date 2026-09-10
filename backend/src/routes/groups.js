@@ -1,6 +1,6 @@
 const express = require("express");
 const pool = require("../config/db");
-const requireAuth = require("../middleware/auth");
+const { requireAuth, requireAdmin } = require("../middleware/auth");
 
 const router = express.Router();
 router.use(requireAuth);
@@ -31,7 +31,7 @@ router.get("/:id", async (req, res) => {
 });
 
 // POST /api/groups  (+ Add Group)
-router.post("/", async (req, res) => {
+router.post("/", requireAdmin, async (req, res) => {
   try {
     const { name, description } = req.body;
     if (!name) return res.status(400).json({ message: "Group name is required" });
@@ -51,7 +51,7 @@ router.post("/", async (req, res) => {
 });
 
 // PUT /api/groups/:id
-router.put("/:id", async (req, res) => {
+router.put("/:id", requireAdmin, async (req, res) => {
   const { name, description } = req.body;
   const result = await pool.query(
     "UPDATE groups SET name=$1, description=$2 WHERE id=$3 RETURNING *",
@@ -62,7 +62,7 @@ router.put("/:id", async (req, res) => {
 });
 
 // DELETE /api/groups/:id
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", requireAdmin, async (req, res) => {
   await pool.query("DELETE FROM groups WHERE id = $1", [req.params.id]);
   res.json({ message: "Group deleted" });
 });

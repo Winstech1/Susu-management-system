@@ -1,7 +1,6 @@
 const express = require("express");
 const pool = require("../config/db");
-const requireAuth = require("../middleware/auth");
-
+const { requireAuth, requireAdmin } = require("../middleware/auth");
 const router = express.Router();
 router.use(requireAuth);
 
@@ -106,7 +105,7 @@ router.put("/:id", async (req, res) => {
 });
 
 // DELETE /api/members/:id
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", requireAdmin, async (req, res) => {
   await pool.query("DELETE FROM members WHERE id = $1", [req.params.id]);
   res.json({ message: "Member deleted" });
 });
