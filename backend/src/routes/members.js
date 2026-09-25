@@ -70,9 +70,11 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ message: "Full name and phone number are required" });
     }
 
-    // Auto-generate member code like 001, 002, ...
-    const countResult = await pool.query("SELECT COUNT(*) FROM members");
-    const nextCode = String(parseInt(countResult.rows[0].count, 10) + 1).padStart(3, "0");
+   // Auto-generate member code based on the highest existing code, not a count
+const maxResult = await pool.query(
+  "SELECT COALESCE(MAX(CAST(member_code AS INTEGER)), 0) AS max_code FROM members"
+);
+const nextCode = String(parseInt(maxResult.rows[0].max_code, 10) + 1).padStart(3, "0");
 
     const result = await pool.query(
       `INSERT INTO members (member_code, full_name, phone_number, address, group_id, date_joined)
