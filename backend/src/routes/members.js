@@ -27,12 +27,16 @@ router.get("/", async (req, res) => {
       params
     );
 
-    params.push(limit, offset);
+        params.push(limit, offset);
     const dataResult = await pool.query(
       `SELECT m.id, m.member_code, m.full_name, m.phone_number, m.address, m.date_joined,
-              g.name AS group_name, g.id AS group_id
+              g.name AS group_name, g.id AS group_id,
+              COALESCE(b.total_savings, 0) AS total_savings,
+              COALESCE(b.total_withdrawals, 0) AS total_withdrawals,
+              COALESCE(b.current_balance, 0) AS current_balance
        FROM members m
        LEFT JOIN groups g ON g.id = m.group_id
+       LEFT JOIN member_balances b ON b.member_id = m.id
        ${where}
        ORDER BY m.id DESC
        LIMIT $${params.length - 1} OFFSET $${params.length}`,
@@ -51,15 +55,47 @@ router.get("/", async (req, res) => {
   }
 });
 
-// GET /api/members/:id  (3.4 view / member details)
-router.get("/:id", async (req, res) => {
-  const result = await pool.query(
-    `SELECT m.*, g.name AS group_name FROM members m
-     LEFT JOIN groups g ON g.id = m.group_id WHERE m.id = $1`,
-    [req.params.id]
-  );
-  if (!result.rows[0]) return res.status(404).json({ message: "Member not found" });
-  res.json(result.rows[0]);
+// GET /api/members/:id/account  — full account summary: savings, withdrawals, balance
+router.get("/:id/account", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const member = await pool.query(
+      `SELECT m.*, g.name AS group_name FROM members m
+       LEFT JOIN groups g ON g.id = m.group_id WHERE m.id = $1`,
+      [id]
+    );
+    if (!member.rows[0]) return res.status(404).json({ message: "Member not found" });
+
+    const balance = await pool.query(
+      "SELECT * FROM member_balances WHERE member_id = $1",
+      [id]
+    );
+
+    const savingsHistory = await pool.query(
+      `SELECT id, amount, payment_method, note, txn_date
+       FROM savings WHERE member_id = $1 ORDER BY txn_date DESC, id DESC`,
+      [id]
+    );
+
+    const withdrawalHistory = await pool.query(
+      `SELECT id, amount, reason, payment_method, txn_date
+       FROM withdrawals WHERE member_id = $1 ORDER BY txn_date DESC, id DESC`,
+      [id]
+    );
+
+    res.json({
+      member: member.rows[0],
+      totalSavings: balance.rows[0]?.total_savings || 0,
+      totalWithdrawals: balance.rows[0]?.total_withdrawals || 0,
+      currentBalance: balance.rows[0]?.current_balance || 0,
+      savingsHistory: savingsHistory.rows,
+      withdrawalHistory: withdrawalHistory.rows,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to fetch member account" });
+  }
 });
 
 // POST /api/members  (3.4 ADD MEMBER)

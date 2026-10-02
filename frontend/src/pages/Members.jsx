@@ -53,27 +53,31 @@ export default function Members() {
 
       <div className="bg-white border rounded-lg overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-left text-gray-500">
+                   <thead className="bg-gray-50 text-left text-gray-500">
             <tr>
               <th className="p-3">ID</th>
               <th>Name</th>
               <th>Phone</th>
               <th>Group</th>
               <th>Date Joined</th>
+              <th>Balance</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody>
             {members.map((m) => (
-              <tr key={m.id} className="border-t">
+                            <tr key={m.id} className="border-t">
                 <td className="p-3">{m.member_code}</td>
                 <td>{m.full_name}</td>
                 <td>{m.phone_number}</td>
                 <td>{m.group_name || "-"}</td>
                 <td>{new Date(m.date_joined).toLocaleDateString()}</td>
+                <td className="font-semibold text-susu-gold">
+                  GH₵ {Number(m.current_balance).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                </td>
                 <td className="space-x-2">
                   <Link to={`/members/${m.id}/edit`} className="text-blue-600">edit</Link>
-                  <Link to={`/savings/history/${m.id}`} className="text-susu-green">view</Link>
+                  <Link to={`/members/${m.id}/account`} className="text-susu-green">view</Link>
                   <button onClick={() => handleDelete(m.id)} className="text-red-600">delete</button>
                 </td>
               </tr>

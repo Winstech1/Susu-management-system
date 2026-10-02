@@ -14,6 +14,7 @@ import Reports from "./pages/Reports";
 import MemberStatement from "./pages/MemberStatement";
 import Settings from "./pages/Settings";
 import ManageUsers from "./pages/ManageUsers";
+import MemberAccount from "./pages/MemberAccount";
 
 function ProtectedRoute({ children }) {
   const { user } = useAuth();
@@ -31,6 +32,7 @@ export default function App() {
       <Route path="/members" element={<ProtectedRoute><Members /></ProtectedRoute>} />
       <Route path="/members/add" element={<ProtectedRoute><AddMember /></ProtectedRoute>} />
       <Route path="/members/:id/edit" element={<ProtectedRoute><AddMember /></ProtectedRoute>} />
+      <Route path="/members/:id/account" element={<ProtectedRoute><MemberAccount /></ProtectedRoute>} />
 
       <Route path="/savings" element={<ProtectedRoute><Savings /></ProtectedRoute>} />
       <Route path="/savings/history/:memberId" element={<ProtectedRoute><SavingsHistory /></ProtectedRoute>} />
